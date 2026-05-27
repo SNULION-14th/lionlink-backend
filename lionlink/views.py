@@ -91,14 +91,17 @@ class PreviewView(APIView):
         serializer = PreviewCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         url = serializer.validated_data['url']
+        user_title = serializer.validated_data.get('title', '').strip()
+        user_description = serializer.validated_data.get('description', '').strip()
 
         # URL을 그대로 fetch.
         response = requests.get(url, timeout=5)
         raw_text = response.text[:500]
 
         soup = BeautifulSoup(response.text, 'html.parser')
-        title = _og(soup, 'og:title')
-        description = _og(soup, 'og:description')
+        # 사용자가 직접 입력한 제목·설명이 있으면 그걸 우선, 없으면 OG 태그에서 자동 추출
+        title = user_title or _og(soup, 'og:title')
+        description = user_description or _og(soup, 'og:description')
 
         preview = Preview.objects.create(
             user=request.user,

@@ -43,3 +43,5 @@ class PreviewSerializer(serializers.ModelSerializer):
 
 class PreviewCreateSerializer(serializers.Serializer):
     url = serializers.URLField(max_length=2000)
+    title = serializers.CharField(max_length=500, required=False, allow_blank=True, default='')
+    description = serializers.CharField(max_length=2000, required=False, allow_blank=True, default='')
